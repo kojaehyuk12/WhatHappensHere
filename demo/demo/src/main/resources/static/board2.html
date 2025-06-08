@@ -1,0 +1,277 @@
+<!DOCTYPE HTML>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Bug Report Board</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <link rel="stylesheet" href="assets/css/board.css" />
+    <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+</head>
+<body class="is-preload">
+
+<!-- Wrapper -->
+<div id="wrapper">
+
+    <!-- Header -->
+    <header id="header" class="alt style2">
+        <a href="index.html" class="logo"><strong>LOGO</strong> <span>by ICE</span></a>
+        <nav>
+            <a href="#menu">Menu</a>
+        </nav>
+    </header>
+
+    <!-- Menu -->
+    <nav id="menu">
+        <ul class="links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="board.html">자유게시판</a></li>
+            <li><a href="board2.html">버그 제보</a></li>
+        </ul>
+        <ul class="actions stacked" id="auth-actions">
+            <!-- 로그인/회원가입 또는 사용자 정보와 로그아웃 버튼이 여기에 표시됩니다 -->
+        </ul>
+    </nav>
+
+    <!-- Banner -->
+    <section id="banner" class="style2">
+        <div class="inner">
+            <header class="major">
+                <h1>Bug Report Board</h1>
+            </header>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="inner">
+        <!-- 게시글 목록 -->
+        <section class="board" id="posts"></section>
+
+        <!-- 페이지네이션 -->
+        <div class="pagination" id="pagination"></div>
+
+        <!-- 작성 버튼 (로그인된 사용자에게만 표시) -->
+        <div class="write-button" style="display: none;">
+            <a href="writebug.html" class="button primary">Write</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="footer">
+        <div class="inner">
+            <ul class="icons">
+                <li><a href="#" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>
+                <li><a href="#" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li>
+                <li><a href="#" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li>
+                <li><a href="#" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+                <li><a href="#" class="icon brands alt fa-linkedin-in"><span class="label">LinkedIn</span></a></li>
+            </ul>
+            <ul class="copyright">
+                <li>&copy; Untitled</li><li>Design: ICE</li>
+            </ul>
+        </div>
+    </footer>
+
+</div>
+
+<!-- Scripts -->
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/jquery.scrolly.min.js"></script>
+<script src="assets/js/jquery.scrollex.min.js"></script>
+<script src="assets/js/browser.min.js"></script>
+<script src="assets/js/breakpoints.min.js"></script>
+<script src="assets/js/util.js"></script>
+<script src="assets/js/main.js"></script>
+
+<!-- 게시판 기능을 위한 커스텀 스크립트 -->
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
+        const username = sessionStorage.getItem('username');
+
+        const writeButton = document.querySelector('.write-button');
+        const authActions = document.getElementById('auth-actions');
+        const postsContainer = document.getElementById('posts');
+        const paginationContainer = document.getElementById('pagination');
+
+        const POSTS_PER_PAGE = 6;
+        let currentPage = 1;
+        let totalPages = 1;
+        let allPosts = [];
+
+        // 로그인 상태에 따른 메뉴 업데이트
+        function updateAuthMenu() {
+            authActions.innerHTML = ''; // 기존 내용 초기화
+
+            if (isLoggedIn) {
+                const userItem = document.createElement('li');
+                userItem.textContent = `안녕하세요, ${username}님`;
+
+                const logoutItem = document.createElement('li');
+                const logoutButton = document.createElement('button');
+                logoutButton.textContent = '로그아웃';
+                logoutButton.classList.add('button', 'secondary', 'fit');
+                logoutButton.addEventListener('click', logout);
+                logoutItem.appendChild(logoutButton);
+
+                authActions.appendChild(userItem);
+                authActions.appendChild(logoutItem);
+                writeButton.style.display = 'flex';
+            } else {
+                const signupItem = document.createElement('li');
+                const signupLink = document.createElement('a');
+                signupLink.href = 'signup.html';
+                signupLink.textContent = 'SignUp';
+                signupLink.classList.add('button', 'primary', 'fit');
+                signupItem.appendChild(signupLink);
+
+                const loginItem = document.createElement('li');
+                const loginLink = document.createElement('a');
+                loginLink.href = 'login.html';
+                loginLink.textContent = 'Login';
+                loginLink.classList.add('button', 'primary', 'fit');
+                loginItem.appendChild(loginLink);
+
+                authActions.appendChild(signupItem);
+                authActions.appendChild(loginItem);
+                writeButton.style.display = 'none';
+            }
+        }
+
+        // 로그아웃 함수
+        function logout() {
+            sessionStorage.removeItem('isLoggedIn');
+            sessionStorage.removeItem('username');
+            sessionStorage.removeItem('authToken');
+            location.reload();
+        }
+
+        // 게시글 삭제 함수
+        function deletePost(postId) {
+            fetch(`/api/bug-posts/delete/${postId}`, {
+                method: 'DELETE'
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert("게시글이 성공적으로 삭제되었습니다.");
+                        location.reload();
+                    } else {
+                        alert("게시글을 찾을 수 없습니다.");
+                    }
+                })
+                .catch(error => {
+                    console.error("삭제 중 오류 발생:", error);
+                    alert("삭제 중 문제가 발생했습니다.");
+                });
+        }
+
+        // 게시글 렌더링
+        function renderPosts() {
+            postsContainer.innerHTML = '';
+
+            if (allPosts.length === 0) {
+                postsContainer.innerHTML = '<p>게시글이 없습니다.</p>';
+                return;
+            }
+
+            const start = (currentPage - 1) * POSTS_PER_PAGE;
+            const end = start + POSTS_PER_PAGE;
+            const currentPosts = allPosts.slice(start, end);
+
+            currentPosts.forEach(post => {
+                const postElement = document.createElement('div');
+                postElement.classList.add('post');
+
+                const headerElement = document.createElement('div');
+                headerElement.classList.add('post-header');
+
+                const titleElement = document.createElement('h3');
+                titleElement.textContent = post.title;
+                headerElement.appendChild(titleElement);
+
+                if (isLoggedIn && username === post.author) {
+                    const deleteButton = document.createElement('button');
+                    deleteButton.classList.add('delete-button');
+                    deleteButton.textContent = '삭제';
+                    deleteButton.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        deletePost(post.id);
+                    });
+                    headerElement.appendChild(deleteButton);
+                }
+
+                postElement.appendChild(headerElement);
+
+                const contentElement = document.createElement('div');
+                contentElement.classList.add('post-content');
+                contentElement.style.display = 'none';
+                contentElement.innerHTML = `
+                    <p>${post.content}</p>
+                    <small>작성자: ${post.author} | ${new Date(post.createdAt).toLocaleString()}</small>
+                `;
+                postElement.appendChild(contentElement);
+
+                headerElement.addEventListener('click', () => {
+                    if (contentElement.style.display === 'none') {
+                        document.querySelectorAll('.post-content').forEach(content => {
+                            content.style.display = 'none';
+                        });
+                        contentElement.style.display = 'block';
+                    } else {
+                        contentElement.style.display = 'none';
+                    }
+                });
+
+                postsContainer.appendChild(postElement);
+            });
+        }
+
+        // 게시글 불러오기
+        async function fetchPosts() {
+            try {
+                const response = await fetch('/api/bug-posts');
+                if (!response.ok) throw new Error('게시글을 불러오는데 실패했습니다.');
+                allPosts = await response.json();
+                totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE);
+                renderPosts();
+                renderPagination();
+            } catch (error) {
+                console.error(error);
+                postsContainer.innerHTML = '<p>게시글을 불러오는 중 오류가 발생했습니다.</p>';
+            }
+        }
+
+        // 페이지네이션 렌더링
+        function renderPagination() {
+            paginationContainer.innerHTML = '';
+
+            if (totalPages <= 1) return;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const pageElement = document.createElement('span');
+                pageElement.classList.add('page');
+                pageElement.textContent = i;
+
+                if (i === currentPage) {
+                    pageElement.classList.add('active');
+                }
+
+                pageElement.addEventListener('click', () => {
+                    currentPage = i;
+                    renderPosts();
+                    renderPagination();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+
+                paginationContainer.appendChild(pageElement);
+            }
+        }
+
+        // 초기화
+        updateAuthMenu();
+        fetchPosts();
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>Login</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<link rel="stylesheet" href="assets/css/signup.css" />
+</head>
+<body class="is-preload">
+
+<!-- Header -->
+<header id="header">
+	<h1>Login</h1>
+	<p>If you're not a member, Sign Up!<br />
+		if you have an account, Login!</p>
+</header>
+
+<!-- Login Form -->
+<form id="login-form">
+	<input type="email" name="email" id="email" placeholder="Email Address" required />
+	<input type="password" name="password" id="password" placeholder="Password" required />
+	<input type="submit" value="Login" />
+</form>
+
+<!-- Footer -->
+<footer id="footer">
+	<ul class="icons">
+		<li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
+		<li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
+		<li><a href="#" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
+		<li><a href="#" class="icon fa-envelope"><span class="label">Email</span></a></li>
+	</ul>
+</footer>
+
+<!-- JavaScript to handle form submission -->
+<script>
+	document.getElementById('login-form').addEventListener('submit', async (e) => {
+		e.preventDefault();
+
+		const email = document.getElementById('email').value;
+		const password = document.getElementById('password').value;
+
+		try {
+			const response = await fetch(`/api/users/login?username=${email}&password=${password}`, {
+				method: 'POST'
+			});
+
+			if (response.ok) {
+				alert('로그인 성공');
+				sessionStorage.setItem('isLoggedIn', 'true');
+				sessionStorage.setItem('username', email);
+				window.location.href = "/index.html";
+			} else {
+				const errorText = await response.text();
+				alert('로그인 실패: ' + errorText);
+			}
+		} catch (error) {
+			alert('에러 발생: ' + error.message);
+		}
+	});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,167 @@
+.board {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+    margin: 40px 0;
+}
+
+.board .post {
+    position: relative;
+    overflow: hidden;
+    background-color: #333;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.board .post:hover {
+    background-color: #444;
+    transform: scale(1.05);
+}
+
+.board .post .post-image {
+    position: relative;
+    text-align: center;
+    color: white;
+    background-color: transparent;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.board .post .post-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.75;
+    transition: opacity 0.3s ease;
+}
+
+.board .post .post-image h2 {
+    position: absolute;
+    font-size: 1.75em;
+    font-weight: bold;
+    color: #fff;
+    transition: color 0.3s ease;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.pagination .page {
+    padding: 10px 15px;
+    border: 1px solid #333;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #333;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.pagination .page:hover {
+    background-color: #444;
+    color: white;
+    transform: scale(1.1);
+}
+
+.pagination .page.active {
+    background-color: #444;
+    color: white;
+}
+
+.write-button {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -70px;
+    margin-right: 10px;
+}
+
+.write-button .button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+#write-form .actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px; /* 버튼 간 간격 조정 */
+}
+
+#write-form .field label {
+    margin-left: 20px;  
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+@font-face {
+    font-family: 'CustomFont';
+    src: url('assets/fonts/YourFontFileName.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.field.file-upload {
+    display: inline-flex;
+    align-items: center;
+    font-family: 'CustomFont', sans-serif;
+    margin-right: auto;
+}
+
+.file-upload label {
+    display: flex; /* Flexbox로 버튼 내부 중앙 정렬 */
+    align-items: center; /* 수직 중앙 정렬 */
+    justify-content: center; /* 수평 중앙 정렬 */
+    width: 130px; /* 버튼 너비 */
+    height: 40px; /* 버튼 높이 */
+    background-color: #1cb495;
+    color: #ffffff;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    text-align: center;
+    transition: background-color 0.2s ease-in-out;
+    padding-top: 3px; /* 위쪽 패딩을 줄여 텍스트를 위로 이동 */
+}
+
+.file-upload label:hover {
+    background-color: #1fcaa7;
+}
+
+#file-upload {
+    display: none;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.file-upload label, .button.primary {
+    width: 130px; /* 버튼 너비를 동일하게 설정 */
+    height: 70px; /* 버튼 높이 설정 */
+    display: flex; /* 중앙 정렬 */
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.file-upload {
+    margin-right: auto; /* Image 버튼을 왼쪽으로 배치 */
+    margin-top: 20px; /* 위쪽 공백 추가 */
+}
+
+.button.primary {
+    margin-left: auto; /* 오른쪽으로 이동 */
+    padding-right: 20px; /* 오른쪽 패딩 */
+}
+

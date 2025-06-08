@@ -3,7 +3,7 @@ import openai
 import json
 
 app = Flask(__name__)
-openai.api_key = "sk-proj-nsntiCNHFBspv0tMFzhQT3BlbkFJ1sdU6qVp8OvXa7jJhaU9"
+openai.api_key = "API KEy"
 
 # JSON 데이터를 코드 내에 직접 정의
 predefined_data = [
